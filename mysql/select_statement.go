@@ -41,6 +41,7 @@ type SelectStatement interface {
 	Expression
 
 	OPTIMIZER_HINTS(hints ...OptimizerHint) SelectStatement
+	INDEX_HINTS(hints ...IndexHint) SelectStatement
 
 	DISTINCT() SelectStatement
 	FROM(tables ...ReadableTable) SelectStatement

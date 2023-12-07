@@ -77,6 +77,9 @@ func (s *ClauseSelect) Serialize(statementType StatementType, out *SQLBuilder, o
 type ClauseFrom struct {
 	Name   string
 	Tables []Serializer
+
+	// MySQL only
+	IndexHints indexHints
 }
 
 // Serialize serializes clause into SQLBuilder
@@ -100,6 +103,7 @@ func (f *ClauseFrom) Serialize(statementType StatementType, out *SQLBuilder, opt
 		table.serialize(statementType, out, FallTrough(options)...)
 	}
 	out.DecreaseIdent()
+	f.IndexHints.Serialize(statementType, out, options...)
 }
 
 // ClauseWhere struct

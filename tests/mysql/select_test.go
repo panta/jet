@@ -1320,3 +1320,27 @@ FROM dvds.actor;
 	require.NoError(t, err)
 	require.Len(t, actors, 200)
 }
+
+func TestSelectIndexHints(t *testing.T) {
+
+	stmt := SELECT(Actor.AllColumns).
+		DISTINCT().
+		FROM(Actor).
+		WHERE(Actor.LastName.EQ(String("DAVIS"))).
+		INDEX_HINTS(FORCE_INDEX("idx_actor_last_name"))
+
+	testutils.AssertDebugStatementSql(t, stmt, `
+SELECT DISTINCT actor.actor_id AS "actor.actor_id",
+     actor.first_name AS "actor.first_name",
+     actor.last_name AS "actor.last_name",
+     actor.last_update AS "actor.last_update"
+FROM dvds.actor FORCE INDEX(idx_actor_last_name)
+WHERE actor.last_name = 'DAVIS';
+`)
+
+	var actors []model.Actor
+
+	err := stmt.QueryContext(context.Background(), db, &actors)
+	require.NoError(t, err)
+	require.Len(t, actors, 3)
+}
